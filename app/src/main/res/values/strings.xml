@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Wootlab Banking</string>
+    <string name="woot_lab_logo">woot lab logo</string>
+    <string name="main_bg">main bg</string>
+    <string name="to_become">To become a strong, trusted,competitive regional bank,
+        and to support economic development in Nigeria</string>
+    <string name="get_started">Get Started</string>
+    <string name="wootlab_banking">Wootlab Banking</string>
+</resources>
