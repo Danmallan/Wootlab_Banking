@@ -1,14 +1,23 @@
 package com.basecamp.wootlabbanking;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -42,6 +51,95 @@ public class SignIn extends AppCompatActivity {
         password = findViewById(R.id.password);
 
         dialog = new ProgressDialog(this);
+        mAuth = FirebaseAuth.getInstance();
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(mUser != null){
+                    Intent intent = new Intent(SignIn.this, Home.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    Log.e(TAG, "AuthStateChaged : Sign In ");
+
+                }else {
+                    Log.e(TAG, "AuthStateChaged : Logout");
+                }
+            }
+        };
+
+        tvSignIn.setOnClickListener(v -> {
+            userSignIn();
+        });
+
+    }
+
+    private void userSignIn() {
+        emailValue = email.getText().toString().trim();
+        passwordValue = password.getText().toString().trim();
+
+        if(TextUtils.isEmpty(emailValue) || !emailValue.contains("@")){
+            Toast.makeText(this, "Enter a valid email!", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Enter a valid email!");
+            return;
+        }else if(TextUtils.isEmpty(emailValue)){
+            Toast.makeText(this, "Enter a valid password", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Enter a valid password");
+            return;
+        }
+
+        dialog.setMessage("Login user please wait ...");
+        dialog.show();
+        mAuth.signInWithEmailAndPassword(emailValue, passwordValue).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(!task.isSuccessful()){
+                    dialog.dismiss();
+                    Toast.makeText(SignIn.this, "Login not Successful!", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Login not Successful!");
+                }else {
+                    dialog.dismiss();
+                    checkIfEmailIsVerified();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.removeAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mAuthListener != null){
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    private void checkIfEmailIsVerified() {
+        FirebaseUser users = FirebaseAuth.getInstance().getCurrentUser();
+        boolean emailVerified = users.isEmailVerified();
+
+        if(!emailVerified){
+            Toast.makeText(this, "Please verify your email Id", Toast.LENGTH_SHORT).show();
+            mAuth.signOut();
+        } else {
+            email.getText().clear();
+            password.getText().clear();
+
+            Intent intent = new Intent(SignIn.this, Home.class);
+            intent.putExtra(userEmail, emailValue);
+            startActivity(intent);
+
+        }
     }
 }
