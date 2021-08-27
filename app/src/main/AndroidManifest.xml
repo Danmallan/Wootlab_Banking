@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WootlabBanking">
-        <activity android:name=".SignUp"></activity>
+        <activity android:name=".ForgetPasswordActivity"></activity>
+        <activity android:name=".SignUp" />
         <activity android:name=".SignIn" />
         <activity android:name=".Home" />
         <activity android:name=".Splash_Screen">

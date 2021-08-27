@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,7 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class SignIn extends AppCompatActivity {
 
-    private TextView tvSignUp, tvSignIn;
+    private TextView tvSignUp, tvSignIn, forgetPassword;
     private EditText email, password;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -32,7 +33,7 @@ public class SignIn extends AppCompatActivity {
     private ProgressDialog dialog;
     public static final String userEmail = "";
 
-    public static final String TAG = "LOGIN";
+    public static final String TAG = "SignIn";
 
 
     @Override
@@ -44,6 +45,11 @@ public class SignIn extends AppCompatActivity {
         tvSignUp = findViewById(R.id.sign_up);
         tvSignUp.setOnClickListener(v -> {
             startActivity(new Intent(SignIn.this, SignUp.class));
+        });
+
+        forgetPassword = findViewById(R.id.forget_password);
+        forgetPassword.setOnClickListener(v -> {
+            startActivity(new Intent(SignIn.this, ForgetPasswordActivity.class));
         });
 
         tvSignIn = findViewById(R.id.sign_in);
@@ -61,10 +67,10 @@ public class SignIn extends AppCompatActivity {
                     Intent intent = new Intent(SignIn.this, Home.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
-                    Log.e(TAG, "AuthStateChaged : Sign In ");
+                    Log.e(TAG, "AuthStateChanged : Sign In ");
 
                 }else {
-                    Log.e(TAG, "AuthStateChaged : Logout");
+                    Log.e(TAG, "AuthStateChanged : Logout");
                 }
             }
         };
@@ -126,7 +132,7 @@ public class SignIn extends AppCompatActivity {
     }
 
     private void checkIfEmailIsVerified() {
-        FirebaseUser users = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser users = mAuth.getCurrentUser();
         boolean emailVerified = users.isEmailVerified();
 
         if(!emailVerified){
